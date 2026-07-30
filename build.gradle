@@ -1,0 +1,94 @@
+plugins {
+	id 'fabric-loom' version '1.15-SNAPSHOT'
+	id 'maven-publish'
+	id 'org.jetbrains.kotlin.jvm' version '2.1.20'
+	id 'io.freefair.lombok' version '9.2.0'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+	archivesName = project.archives_base_name
+}
+
+repositories {
+	mavenCentral()
+	maven { url = "https://maven.parchmentmc.org" }
+	maven { url = "https://maven.quiltmc.org/repository/release" }
+	maven { url = "https://jitpack.io/" }
+	maven { url = "https://cursemaven.com" }
+}
+
+loom {
+	accessWidenerPath = file("src/main/resources/ciallominedatapack.accesswidener")
+}
+
+dependencies {
+	// Minecraft + Fabric
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
+
+	implementation "org.jetbrains.kotlin:kotlin-stdlib:${project.kotlin_version}"
+
+	// LDLib2 (Fabric 版, ELBGG fork)
+	modImplementation files("libs/LDLib2-2.5.jar")
+	include(group: 'org.appliedenergistics.yoga', name: 'yoga', version: '1.0.0')
+	include(group: 'dev.vfyjxf', name: 'taffy', version: '1.1.4')
+
+	// Architectury API (LDLib2 依赖)
+	modImplementation "curse.maven:architectury-api-419699:5786326"
+
+	// Yoga + Taffy 布局引擎
+	implementation "org.appliedenergistics.yoga:yoga:1.0.0"
+	implementation "dev.vfyjxf:taffy:1.1.4"
+
+	compileOnly "com.google.code.findbugs:jsr305:3.0.2"
+}
+
+processResources {
+	inputs.property "version", project.version
+	inputs.property "minecraft_version", project.minecraft_version
+	inputs.property "loader_version", project.loader_version
+	filteringCharset "UTF-8"
+
+	filesMatching("fabric.mod.json") {
+		expand "version": project.version,
+				"minecraft_version": project.minecraft_version,
+				"loader_version": project.loader_version
+	}
+}
+
+def targetJavaVersion = 21
+tasks.withType(JavaCompile).configureEach {
+	it.options.encoding = "UTF-8"
+	if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+		it.options.release.set(targetJavaVersion)
+	}
+}
+
+java {
+	def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+	if (JavaVersion.current() < javaVersion) {
+		toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+	}
+	withSourcesJar()
+}
+
+jar {
+	from("LICENSE") {
+		rename { "${it}_${project.archives_base_name}" }
+	}
+}
+
+publishing {
+	publications {
+		create("mavenJava", MavenPublication) {
+			artifactId = project.archives_base_name
+			from components.java
+		}
+	}
+}

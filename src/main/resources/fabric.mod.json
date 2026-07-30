@@ -1,0 +1,39 @@
+{
+	"schemaVersion": 1,
+	"id": "ciallominedatapack",
+	"version": "${version}",
+	"name": "CialloMineDatapack",
+	"description": "游戏内数据包可视化编辑器。基于 LDLib2 编辑器框架。",
+	"authors": [
+		"sisariku"
+	],
+	"contact": {
+		"homepage": "https://github.com/sisariku/CialloMine",
+		"sources": "https://github.com/sisariku/CialloMine"
+	},
+	"license": "MIT",
+	"icon": "assets/ciallominedatapack/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.sisariku.datapack.CialloMineDatapack"
+		],
+		"client": [
+			"com.sisariku.datapack.CialloMineDatapackClient"
+		],
+		"fabric-datagen": [
+			"com.sisariku.datapack.CialloMineDatapackDataGenerator"
+		]
+	},
+	"mixins": [
+		"ciallominedatapack.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=${loader_version}",
+		"fabric-api": "*",
+		"fabric-language-kotlin": "*",
+		"minecraft": "~1.21.1",
+		"java": ">=21",
+		"ldlib2": "*"
+	}
+}
