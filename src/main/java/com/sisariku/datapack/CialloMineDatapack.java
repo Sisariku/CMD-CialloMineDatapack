@@ -29,24 +29,30 @@ public class CialloMineDatapack implements ModInitializer {
                     // 权限管理
                     .then(CommandManager.literal("op")
                         .then(CommandManager.argument("player", EntityArgumentType.player())
-                            .requires(src -> src.hasPermissionLevel(2))
-                            .executes(ctx -> {
-                                ServerPlayerEntity target = EntityArgumentType.getPlayer(ctx, "player");
-                                DatapackPermissionManager.grant(target);
-                                ctx.getSource().sendFeedback(() -> Text.literal("§a已授予 " + target.getName().getString() + " 数据包编辑权限。"), true);
-                                return 1;
-                            })
+                            .then(CommandManager.argument("datapack", StringArgumentType.word())
+                                .requires(src -> src.hasPermissionLevel(2))
+                                .executes(ctx -> {
+                                    ServerPlayerEntity target = EntityArgumentType.getPlayer(ctx, "player");
+                                    String dp = StringArgumentType.getString(ctx, "datapack");
+                                    DatapackPermissionManager.grant(target.getUuid(), dp);
+                                    ctx.getSource().sendFeedback(() -> Text.literal("§a已授予 " + target.getName().getString() + " 对数据包 " + dp + " 的编辑权限。"), true);
+                                    return 1;
+                                })
+                            )
                         )
                     )
                     .then(CommandManager.literal("deop")
                         .then(CommandManager.argument("player", EntityArgumentType.player())
-                            .requires(src -> src.hasPermissionLevel(2))
-                            .executes(ctx -> {
-                                ServerPlayerEntity target = EntityArgumentType.getPlayer(ctx, "player");
-                                DatapackPermissionManager.revoke(target.getUuid());
-                                ctx.getSource().sendFeedback(() -> Text.literal("§c已撤销 " + target.getName().getString() + " 的数据包编辑权限。"), true);
-                                return 1;
-                            })
+                            .then(CommandManager.argument("datapack", StringArgumentType.word())
+                                .requires(src -> src.hasPermissionLevel(2))
+                                .executes(ctx -> {
+                                    ServerPlayerEntity target = EntityArgumentType.getPlayer(ctx, "player");
+                                    String dp = StringArgumentType.getString(ctx, "datapack");
+                                    DatapackPermissionManager.revoke(target.getUuid(), dp);
+                                    ctx.getSource().sendFeedback(() -> Text.literal("§c已撤销 " + target.getName().getString() + " 对数据包 " + dp + " 的编辑权限。"), true);
+                                    return 1;
+                                })
+                            )
                         )
                     )
                     // 客户端使用的桩命令（Tab 补全）

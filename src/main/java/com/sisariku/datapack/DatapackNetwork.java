@@ -44,7 +44,7 @@ public class DatapackNetwork {
 
         ServerPlayNetworking.registerGlobalReceiver(PermissionQuery.ID, (payload, context) -> {
             ServerPlayerEntity player = context.player();
-            boolean granted = DatapackPermissionManager.isAuthorized(player);
+            boolean granted = DatapackPermissionManager.hasAnyPermission(player);
             ServerPlayNetworking.send(player, new PermissionReply(granted));
         });
 
