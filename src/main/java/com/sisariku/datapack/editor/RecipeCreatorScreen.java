@@ -254,9 +254,7 @@ public class RecipeCreatorScreen extends ModularUIScreen {
             for (int c = 0; c < 3; c++) {
                 final int rr = r, cc = c;
                 var slot = makeSlot(sGrid[rr][cc], sActiveSlot.equals("g"+rr+cc));
-                slot.addEventListener(UIEvents.CLICK, ev -> {
-                    if (ev.button == 1) { sGrid[rr][cc] = null; refreshAfterPick(); return; }
-                    sActiveSlot = "g"+rr+cc; sPickCallback = item -> {
+                slot.addEventListener(UIEvents.CLICK, ev -> { sActiveSlot = "g"+rr+cc; sPickCallback = item -> {
                     sGrid[rr][cc] = item; refreshAfterPick();
                 };});
                 gridRow.addChildren(slot);
@@ -274,9 +272,7 @@ public class RecipeCreatorScreen extends ModularUIScreen {
         outCol.layout(l -> l.paddingTop(24));
         outCol.addChildren(new Label().setText(Text.literal("产物")));
         var outSlot = makeSlot(sCraftResult, sActiveSlot.equals("result"));
-        outSlot.addEventListener(UIEvents.CLICK, ev -> {
-        if (ev.button == 1) { sCraftResult = null; refreshAfterPick(); return; }
-        sActiveSlot = "result"; sPickCallback = item -> {
+        outSlot.addEventListener(UIEvents.CLICK, ev -> { sActiveSlot = "result"; sPickCallback = item -> {
             sCraftResult = item; refreshAfterPick();
         };});
         outCol.addChildren(outSlot);
@@ -290,9 +286,7 @@ public class RecipeCreatorScreen extends ModularUIScreen {
         row.layout(l -> l.flexDirection(org.appliedenergistics.yoga.YogaFlexDirection.ROW).paddingAll(8));
         var inCol = new UIElement(); inCol.addChildren(new Label().setText(Text.literal("原料")));
         var inSlot = makeSlot(sInput, sActiveSlot.equals("input"));
-        inSlot.addEventListener(UIEvents.CLICK, ev -> {
-        if (ev.button == 1) { sInput = null; refreshAfterPick(); return; }
-        sActiveSlot = "input"; sPickCallback = item -> { sInput = item; refreshAfterPick(); };});
+        inSlot.addEventListener(UIEvents.CLICK, ev -> { sActiveSlot = "input"; sPickCallback = item -> { sInput = item; refreshAfterPick(); };});
         inCol.addChildren(inSlot); row.addChildren(inCol);
 
         var arrCol = new UIElement();
@@ -302,9 +296,7 @@ public class RecipeCreatorScreen extends ModularUIScreen {
 
         var outCol = new UIElement(); outCol.addChildren(new Label().setText(Text.literal("产物")));
         var outSlot = makeSlot(sOutput, sActiveSlot.equals("output"));
-        outSlot.addEventListener(UIEvents.CLICK, ev -> {
-        if (ev.button == 1) { sOutput = null; refreshAfterPick(); return; }
-        sActiveSlot = "output"; sPickCallback = item -> { sOutput = item; refreshAfterPick(); };});
+        outSlot.addEventListener(UIEvents.CLICK, ev -> { sActiveSlot = "output"; sPickCallback = item -> { sOutput = item; refreshAfterPick(); };});
         outCol.addChildren(outSlot); row.addChildren(outCol);
         parent.addChildren(row);
     }

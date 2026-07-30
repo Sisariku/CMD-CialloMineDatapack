@@ -3,10 +3,7 @@ package com.sisariku.datapack;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
@@ -20,52 +17,30 @@ public class CialloMineDatapack implements ModInitializer {
     public void onInitialize() {
         LOGGER.info("[CialloMineDatapack] 数据包编辑器已初始化。");
 
-        DatapackNetwork.register();
-        ServerLifecycleEvents.SERVER_STARTED.register(server -> DatapackPermissionManager.init(server));
-
+        // 服务端命令桩 — 为客户端 /ciallo datapack 提供 Tab 补全
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
             dispatcher.register(CommandManager.literal("ciallo")
                 .then(CommandManager.literal("datapack")
-                    // 权限管理
-                    .then(CommandManager.literal("op")
-                        .then(CommandManager.argument("player", EntityArgumentType.player())
-                            .then(CommandManager.argument("datapack", StringArgumentType.word())
-                                .requires(src -> src.hasPermissionLevel(2))
-                                .executes(ctx -> {
-                                    ServerPlayerEntity target = EntityArgumentType.getPlayer(ctx, "player");
-                                    String dp = StringArgumentType.getString(ctx, "datapack");
-                                    DatapackPermissionManager.grant(target.getUuid(), dp);
-                                    ctx.getSource().sendFeedback(() -> Text.literal("§a已授予 " + target.getName().getString() + " 对数据包 " + dp + " 的编辑权限。"), true);
-                                    return 1;
-                                })
-                            )
-                        )
-                    )
-                    .then(CommandManager.literal("deop")
-                        .then(CommandManager.argument("player", EntityArgumentType.player())
-                            .then(CommandManager.argument("datapack", StringArgumentType.word())
-                                .requires(src -> src.hasPermissionLevel(2))
-                                .executes(ctx -> {
-                                    ServerPlayerEntity target = EntityArgumentType.getPlayer(ctx, "player");
-                                    String dp = StringArgumentType.getString(ctx, "datapack");
-                                    DatapackPermissionManager.revoke(target.getUuid(), dp);
-                                    ctx.getSource().sendFeedback(() -> Text.literal("§c已撤销 " + target.getName().getString() + " 对数据包 " + dp + " 的编辑权限。"), true);
-                                    return 1;
-                                })
-                            )
-                        )
-                    )
-                    // 客户端使用的桩命令（Tab 补全）
                     .then(CommandManager.literal("edit")
-                        .executes(ctx -> { ctx.getSource().sendFeedback(() -> Text.literal("请在客户端使用此命令。"), false); return 1; })
+                        .executes(ctx -> {
+                            ctx.getSource().sendFeedback(() -> Text.literal("请在客户端使用此命令。"), false);
+                            return 1;
+                        })
                     )
                     .then(CommandManager.literal("new")
                         .then(CommandManager.argument("name", StringArgumentType.word())
-                            .executes(ctx -> { ctx.getSource().sendFeedback(() -> Text.literal("请在客户端使用此命令。"), false); return 1; })
+                            .executes(ctx -> {
+                                ctx.getSource().sendFeedback(() -> Text.literal("请在客户端使用此命令。"), false);
+                                return 1;
+                            })
                         )
                     )
                 )
             )
         );
+    }
+
+    public static Identifier id(String path) {
+        return Identifier.of(MOD_ID, path);
     }
 }

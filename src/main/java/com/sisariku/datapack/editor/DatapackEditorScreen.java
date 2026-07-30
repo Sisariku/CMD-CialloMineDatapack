@@ -26,7 +26,6 @@ public class DatapackEditorScreen extends ModularUIScreen {
 
     private File currentFile, datapackRoot;
     private boolean dirty;
-    private boolean readOnly;
     private static File clipboardFile;
     private TreeNode<String, File> contextNode;
     private File selectedFile;
@@ -166,7 +165,6 @@ public class DatapackEditorScreen extends ModularUIScreen {
     }
     private void saveFile() {
         if (currentFile == null) return;
-        if (readOnly) { showOverlay("§c只读模式，无法保存"); return; }
         try { Files.writeString(currentFile.toPath(), String.join("\n", editor.getLines())); dirty = false; updateStatus(); showOverlay("§a已保存"); }
         catch (IOException e) { showOverlay("§c保存失败"); }
     }
@@ -290,5 +288,4 @@ public class DatapackEditorScreen extends ModularUIScreen {
     }
     private void showOverlay(String msg) { if (client.player!=null) client.player.sendMessage(Text.literal("§8[CialloMine] "+msg), true); }
     public void setDatapackRoot(File r) { this.datapackRoot=r; }
-    public void setReadOnly(boolean ro) { this.readOnly = ro; }
 }
