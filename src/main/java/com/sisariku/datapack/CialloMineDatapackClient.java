@@ -34,7 +34,7 @@ public class CialloMineDatapackClient implements ClientModInitializer {
         ));
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (openKey.wasPressed()) {
-                if (isHost() && client.currentScreen == null) {
+                if (client.currentScreen == null) {
                     File dpRoot = findWorldDatapacks();
                     if (dpRoot != null) openEditor(dpRoot);
                 }
@@ -46,7 +46,7 @@ public class CialloMineDatapackClient implements ClientModInitializer {
                 .then(ClientCommandManager.literal("datapack")
                     .then(ClientCommandManager.literal("edit")
                         .executes(ctx -> {
-                            if (!isHost()) { ctx.getSource().sendFeedback(Text.literal("§c仅主机可执行此命令")); return 0; }
+                            
                             File dpRoot = findWorldDatapacks();
                             if (dpRoot == null) {
                                 ctx.getSource().sendFeedback(Text.literal("§c未在单机世界中，请指定路径: /ciallo datapack edit <路径>"));
@@ -57,7 +57,7 @@ public class CialloMineDatapackClient implements ClientModInitializer {
                         })
                         .then(ClientCommandManager.argument("path", StringArgumentType.greedyString())
                             .executes(ctx -> {
-                                if (!isHost()) { ctx.getSource().sendFeedback(Text.literal("§c仅主机可执行此命令")); return 0; }
+                                
                                 File dpRoot = new File(StringArgumentType.getString(ctx, "path"));
                                 if (!dpRoot.exists() || !dpRoot.isDirectory()) {
                                     ctx.getSource().sendFeedback(Text.literal("§c路径不存在或不是目录: " + dpRoot));
@@ -71,7 +71,7 @@ public class CialloMineDatapackClient implements ClientModInitializer {
                     .then(ClientCommandManager.literal("new")
                         .then(ClientCommandManager.argument("name", StringArgumentType.word())
                             .executes(ctx -> {
-                                if (!isHost()) { ctx.getSource().sendFeedback(Text.literal("§c仅主机可执行此命令")); return 0; }
+                                
                                 String name = StringArgumentType.getString(ctx, "name");
                                 if (!isValidName(name)) {
                                     ctx.getSource().sendFeedback(Text.literal("§c名称只能包含小写字母、数字、下划线和短横线"));
@@ -145,10 +145,17 @@ public class CialloMineDatapackClient implements ClientModInitializer {
     }
 
     private static File findWorldDatapacks() {
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.getServer() instanceof IntegratedServer server) {
-            String levelName = server.getSaveProperties().getLevelName();
-            return new File(client.runDirectory, "saves/" + levelName + "/datapacks");
+        var client = MinecraftClient.getInstance();
+        // 主机/单人：用集成服务器的世界名
+        if (client.getServer() instanceof IntegratedServer s) {
+            String name = s.getSaveProperties().getLevelName();
+            return new File(client.runDirectory, "saves/" + name + "/datapacks");
+        }
+        // 局域网/远程客户端：用连接到的服务器名作为本地数据包目录
+        var entry = client.getCurrentServerEntry();
+        if (entry != null) {
+            String name = entry.name.replaceAll("[^a-zA-Z0-9_\\-]", "_");
+            return new File(client.runDirectory, "datapacks/" + name);
         }
         return null;
     }
